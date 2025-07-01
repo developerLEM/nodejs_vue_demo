@@ -9,3 +9,5 @@ Per aggiungere l'esecuzione all'avvio:
 > echo "~/.systeminfo.sh" >> ~/.bashrc
 Per cancellare tutta una directory:
 > rm -r <dir>
+Dopo aver creato un docker, per eseguirlo:
+> docker-compose up --build
