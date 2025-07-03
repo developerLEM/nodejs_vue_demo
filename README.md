@@ -11,3 +11,5 @@ Per cancellare tutta una directory:
 > rm -r <dir>
 Dopo aver creato un docker, per eseguirlo:
 > docker-compose up --build
+Per stoppare il processo Ctrl+c oppure:
+> docker-compose down

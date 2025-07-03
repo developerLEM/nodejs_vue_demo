@@ -1,5 +1,35 @@
 <script setup>
 import HelloWorld from './components/HelloWorld.vue'
+
+console.log("[App.vue] 👋  Benvenuto dal frontend Wabu Platform");
+
+// Importa le funzioni reattive di Vue
+import { ref, onMounted } from 'vue'
+// Crea una variabile reattiva per mostrare il messaggio ricevuto dal backend
+const backendMessage = ref('Caricamento...')
+
+// Quando il componente viene montato, esegue la chiamata al backend
+onMounted(async () => {
+  try {
+    // Effettua una richiesta HTTP GET al backend
+    // Se il frontend gira in Docker Compose, 'backend' è il nome del servizio
+    // Se accedi da browser locale, usa 'http://localhost:3000/'
+    console.log("[App.vue] Chiamata al backend in corso...");
+    //const res = await fetch('http://backend:3000/')
+    //const res = await fetch('http://localhost:3000/')
+    const res = await fetch('/api/') //Con questa riga, il proxy di Vite inoltra la richiesta al backend
+    // Se il backend è esposto su un URL specifico, ad esempio su GitHub
+    //const res = await fetch('https://humble-space-broccoli-r559xppgpgwh5p55-5173.app.github.dev:3000/') 
+    // Legge la risposta come testo e la assegna alla variabile reattiva
+    backendMessage.value = await res.text()
+    console.log("[App.vue] Risposta dal backend:", backendMessage.value);
+  } catch (e) {
+    // In caso di errore, mostra un messaggio di errore
+    backendMessage.value = 'Errore di comunicazione col backend'
+    console.error("[App.vue] Errore durante la chiamata al backend:\n", e);
+  }
+})
+
 </script>
 
 <template>
