@@ -1,5 +1,8 @@
 #version: '3.8'
 
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# SERVICES
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 services:
   ########################################
   # BACKEND
@@ -11,6 +14,8 @@ services:
     volumes:
       - ./backend:/app        # mappa il codice locale nella container
     restart: unless-stopped
+    depends_on:
+      - mongo  
 
   ########################################
   # FRONTEND
@@ -22,3 +27,20 @@ services:
     volumes:
       - ./frontend:/app
     restart: unless-stopped
+
+  ########################################
+  # MONGO DB
+  ########################################
+  mongo:             
+    image: mongo:7
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# VOLUMES
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~      
+volumes:
+  mongo_data:      

@@ -7,6 +7,10 @@ console.log("[App.vue] 👋  Benvenuto dal frontend Wabu Platform");
 import { ref, onMounted } from 'vue'
 // Crea una variabile reattiva per mostrare il messaggio ricevuto dal backend
 const backendMessage = ref('Caricamento...')
+// Crea una variabile reattiva per il test di MongoDB
+// Questa variabile verrà aggiornata quando si testerà la rotta Mongo
+// e mostrerà il risultato del test
+const mongoTestMessage = ref('')
 
 // Quando il componente viene montato, esegue la chiamata al backend
 onMounted(async () => {
@@ -25,16 +29,36 @@ onMounted(async () => {
     console.log("[App.vue] Risposta dal backend:", backendMessage.value);
   } catch (e) {
     // In caso di errore, mostra un messaggio di errore
-    backendMessage.value = 'Errore di comunicazione col backend'
+    backendMessage.value = '[App.vue] Errore di comunicazione col backend'
     console.error("[App.vue] Errore durante la chiamata al backend:\n", e);
   }
 })
 
+// Funzione per testare la rotta Mongo
+async function testMongo() {
+  mongoTestMessage.value = 'Test in corso...'
+  try {
+    const res = await fetch('/api/test-mongo')
+    mongoTestMessage.value = await res.text()
+    console.log("[App.vue] Risposta da /test-mongo:", mongoTestMessage.value)
+  } catch (e) {
+    mongoTestMessage.value = '[App.vue] Errore nella chiamata a /test-mongo'
+    console.error("[App.vue] Errore durante la chiamata a /test-mongo:\n", e)
+  }
+}
+
 </script>
 
 <template>
-  <div>
+  <div class="centered">
+    
+    <!--  Aggiunto -->
     <h1>👋 Benvenuto su Wabu Platform (Frontend)</h1>
+    <p>Risposta dal backend: [{{ backendMessage }}]</p>
+    <button @click="testMongo">Test MongoDB</button>
+    <p v-if="mongoTestMessage">{{ mongoTestMessage }}</p>
+    
+    <!-- Default -->
     <a href="https://vite.dev" target="_blank">
       <img src="/vite.svg" class="logo" alt="Vite logo" />
     </a>
@@ -46,6 +70,12 @@ onMounted(async () => {
 </template>
 
 <style scoped>
+.centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
 .logo {
   height: 6em;
   padding: 1.5em;
