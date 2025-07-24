@@ -23,7 +23,6 @@ const wabuChalk = require("chalk");
 // This modular approach allows for easy updates or additions to the emoji set as the application evolves or new features are added.
 // The emojis can be used in both development and production environments, providing a consistent logging experience across different stages of the application lifecycle.
 ///////////////////////////////////////////////////
-const emoji = require("../emoji/emojiSet");
 const emojiSet = require("../emoji/emojiSet");
 
 ///////////////////////////////////////////////////
@@ -82,6 +81,22 @@ const wabuConsoleLog = {
   success: (message) => {
     console.log(
       wabuChalk.red(`${emojiSet.success} [SUCCESS]`) +
+        wabuChalk.gray(` (${getCallerFile()})`) +
+        " - " +
+        wabuChalk.white(message)
+    );
+  },
+  welcome: (message) => {
+    console.log(
+      wabuChalk.red(`${emojiSet.startup} [WELCOME]`) +
+        wabuChalk.gray(` (${getCallerFile()})`) +
+        " - " +
+        wabuChalk.white(message)
+    );
+  },
+  goodbye: (message) => {
+    console.log(
+      wabuChalk.red(`${emojiSet.goodbye} [GOODBYE]`) +
         wabuChalk.gray(` (${getCallerFile()})`) +
         " - " +
         wabuChalk.white(message)

@@ -35,20 +35,48 @@ const wabuMongoose = require('mongoose');
 /////////////////////////////////////////////////
 // [FUNCTION] wabuMongooseConnect
 /////////////////////////////////////////////////
-function wabuMongooseConnect(dbURI) {
-  wabuMongoose.connect(dbURI);
+const wabuMongooseConnect = async(dbURI) => {
+  try {
+    
+    // Registra gli eventi prima di connettere
 
-  wabuMongoose.connection.on("connected", () => {
-    wabuConsoleLogger.success(`[MONGO] Connessione a MongoDB riuscita! URI=[${dbURI}]`);
-  });
+    // connected
+    wabuMongoose.connection.on("connected", () => {
+      wabuConsoleLogger.welcome(`[MONGO] Connessione a MongoDB riuscita! URI=[${dbURI}]`);
+    });
 
-  wabuMongoose.connection.on("error", (err) => {
-    wabuConsoleLogger.error(`[MONGO] Errore nella connessione MongoDB: ${err}`);
-  });
+    // error 
+    wabuMongoose.connection.on("error", (err) => {
+      wabuConsoleLogger.error(`[MONGO] Errore nella connessione MongoDB: ${err}`);
+    });
 
-  wabuMongoose.connection.on("disconnected", () => {
-    wabuConsoleLogger.warn(`[MONGO] Connessione a MongoDB interrotta!`);
-  });
+    // disconnected
+    wabuMongoose.connection.on("disconnected", () => {
+      wabuConsoleLogger.warn(`[MONGO] Connessione a MongoDB interrotta!`);
+    });
+
+    // Connetti a MongoDB
+    const conn = await wabuMongoose.connect(dbURI);
+
+  } catch (error) {
+
+    wabuConsoleLogger.error(`[MONGO] Errore durante la connessione a MongoDB: ${error.message}`);
+    throw error; // Rilancia l'errore per gestirlo a livello superiore
+    
+  }
+}
+
+/////////////////////////////////////////////////
+// [FUNCTION] wabuMongooseDisconnect
+/////////////////////////////////////////////////
+const wabuMongooseDisconnect = async() => {
+  try {
+    await wabuMongoose.connection.close();
+    wabuConsoleLogger.goodbye(`[MONGO] Connessione a MongoDB chiusa!`);
+  } catch (error) {
+    wabuConsoleLogger.error(`[MONGO] Errore durante la disconnessione a MongoDB: ${error.message}`);
+    throw error; // Rilancia l'errore per gestirlo a livello superiore
+  }
 }
 
 /////////////////////////////////////////////////
@@ -65,4 +93,7 @@ const TestSchema = wabuMongoose.Schema(
 //################################################
 // EXPORTS
 //################################################
-module.exports = wabuMongooseConnect;
+module.exports = {
+  wabuMongooseConnect,
+  wabuMongooseDisconnect
+};

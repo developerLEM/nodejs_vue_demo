@@ -35,6 +35,14 @@ require("dotenv").config();
 const wabuConsoleLogger = require("./logger/logger_console");
 
 /////////////////////////////////////////////////
+// [REQUIRE] logger_file
+/////////////////////////////////////////////////
+// This module provides a utility for logging messages to a file.
+// It formats the log messages with a timestamp and writes them to a specified log file.
+// The log file is created in a dedicated directory, and the messages are appended to the file  
+const wabuFileLogger = require("./logger/logger_file");
+
+/////////////////////////////////////////////////
 // [REQUIRE] express
 /////////////////////////////////////////////////
 // This module is the Express framework, which is used to create the backend server.
@@ -61,7 +69,7 @@ const wabuCors = require('cors');
 // Mongoose is used in this application to connect to MongoDB and define models for the data being stored.
 // It simplifies the process of querying and manipulating data in MongoDB,
 // providing a more intuitive API compared to the native MongoDB driver.
-const wabuMongooseConnect = require('./mongo/mongo');
+const {wabuMongooseConnect}  = require('./mongo/mongo');
 
 
 // Normal console log for debugging purposes
@@ -89,6 +97,33 @@ wabuConsoleLogger.info("[BACKEND - EXPRESS] Abilitazione CORS per richieste cros
 wabuApp.use(wabuCors());
 
 /////////////////////////////////////////////////
+// [MONGO] connection
+/////////////////////////////////////////////////
+// Connect to MongoDB using Mongoose
+// This code connects to the MongoDB database using Mongoose.
+// It uses the `wabuMongooseConnect` function to establish the connection and handle events
+// such as successful connection, error, and disconnection.
+const mongoPORT = process.env.PORT_MONGO || 27017; // Use environment variable or default to 27017
+const mongoURI = process.env.MONGO_DB || `mongodb://mongo:${mongoPORT}/wabu_demo`; // Use environment variable or default to MongoDB URI
+wabuConsoleLogger.info(`[MONGO] Connessione a MongoDB, URI=[${mongoURI}]`);
+async function connectMongoDB() {
+  try {
+    await wabuMongooseConnect(mongoURI);
+    //wabuConsoleLogger.success(`[MONGO] Connessione a MongoDB riuscita! URI=[${mongoURI}]`);
+    wabuFileLogger.wabuFileLogMongo(`Connessione a MongoDB riuscita! URI=[${mongoURI}]`);
+  } catch (error) {
+    //wabuConsoleLogger.error(`[MONGO] Errore durante la connessione a MongoDB: ${error.message}`);
+    throw error; // Rilancia l'errore per gestirlo a livello superiore 
+  }
+}
+connectMongoDB().catch(err => {
+  wabuConsoleLogger.error(`[MONGO] Errore durante la connessione a MongoDB: ${err.message}`);
+  wabuFileLogger.wabuFileLogMongo(`Errore durante la connessione a MongoDB: ${err.message}`);
+  //process.exit(1); // Exit the process if the connection fails
+});
+
+
+/////////////////////////////////////////////////
 // START SERVER
 /////////////////////////////////////////////////
 // Start the server on port 3000
@@ -99,6 +134,7 @@ wabuApp.listen(PORT_HTTP, () => {
 
   // Log a success message when the server is successfully started
   wabuConsoleLogger.success(`[HTTP] Backend in ascolto su http://localhost:${PORT_HTTP} (${new Date().toLocaleString()})`);
+  wabuFileLogger.wabuFileLogServer(`Backend in ascolto su http://localhost:${PORT_HTTP} (${new Date().toLocaleString()})`);
 
 });
 
@@ -118,17 +154,7 @@ wabuApp.get('/', (req, res) => {
 
 });
 
-/////////////////////////////////////////////////
-// [MONGO] connection
-/////////////////////////////////////////////////
-// Connect to MongoDB using Mongoose
-// This code connects to the MongoDB database using Mongoose.
-// It uses the `wabuMongooseConnect` function to establish the connection and handle events
-// such as successful connection, error, and disconnection.
-const mongoPORT = process.env.PORT_MONGO || 27017; // Use environment variable or default to 27017
-const mongoURI = process.env.MONGO_DB || `mongodb://mongo:${mongoPORT}/wabu_demo`; // Use environment variable or default to MongoDB URI
-wabuConsoleLogger.info(`[MONGO] Connessione a MongoDB, URI=[${mongoURI}]`);
-wabuMongooseConnect(mongoURI);
+
 
 
 
